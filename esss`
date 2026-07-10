@@ -351,7 +351,7 @@ local function RunAutoProgression()
 
         RunHardcore()
 
-    elseif level <= 24 then
+    elseif level <= 31 then
         RunEasy()
 
     else
