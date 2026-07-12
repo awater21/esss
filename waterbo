@@ -1,6 +1,6 @@
 
 local Config = {
-    WebhookURL = "https://discord.com/api/webhooks/1445230907081359395/V2-lN9OcafwAq3uNicodtjVUs5P78bmg4dvjwjxgAy2AEVU3oh6ktWtCqYY5t4lomF6J",
+    WebhookURL = "https://discord.com/api/webhooks/1525686213305040976/n43SxEVrP_sEKtYCXGeqehwoekMk29hvjZFYAWdcZbB6l2QoaoNbO7QfxF5kKk0qMbsi",
     IntervalMinutes = 60,
     SendImmediately = true,
 }
