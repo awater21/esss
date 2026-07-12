@@ -1,0 +1,420 @@
+
+local Config = {
+    WebhookURL = "https://discord.com/api/webhooks/1445230907081359395/V2-lN9OcafwAq3uNicodtjVUs5P78bmg4dvjwjxgAy2AEVU3oh6ktWtCqYY5t4lomF6J",
+    IntervalMinutes = 60,
+    SendImmediately = true,
+}
+
+-- Vars
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local HttpService = game:GetService("HttpService")
+
+local LocalPlayer = Players.LocalPlayer
+
+local GetThreadIdentity =
+    getthreadidentity
+    or get_thread_identity
+    or getidentity
+
+local SetThreadIdentity =
+    setthreadidentity
+    or set_thread_identity
+    or setidentity
+
+local function runAtGameIdentity(callback, ...)
+    local arguments = table.pack(...)
+    local previousIdentity
+    local identityChanged = false
+
+    if type(SetThreadIdentity) == "function" then
+        if type(GetThreadIdentity) == "function" then
+            local ok, identity = pcall(GetThreadIdentity)
+
+            if ok then
+                previousIdentity = identity
+            end
+        end
+
+        identityChanged = pcall(SetThreadIdentity, 2)
+    end
+
+    local results = table.pack(pcall(function()
+        return callback(table.unpack(arguments, 1, arguments.n))
+    end))
+
+    if identityChanged and previousIdentity ~= nil then
+        pcall(SetThreadIdentity, previousIdentity)
+    end
+
+    if not results[1] then
+        error(results[2], 0)
+    end
+
+    return table.unpack(results, 2, results.n)
+end
+
+local function safeRequire(module, moduleName)
+    local maxAttempts = 8
+    local retryDelay = 1
+    local requireFunctions = {}
+    local seenRequireFunctions = {}
+
+    local function addRequireFunction(requireFunction)
+        if type(requireFunction) == "function" and not seenRequireFunctions[requireFunction] then
+            seenRequireFunctions[requireFunction] = true
+            table.insert(requireFunctions, requireFunction)
+        end
+    end
+
+    if type(getrenv) == "function" then
+        local ok, robloxEnvironment = pcall(getrenv)
+
+        if ok and type(robloxEnvironment) == "table" then
+            addRequireFunction(rawget(robloxEnvironment, "require"))
+        end
+    end
+
+    addRequireFunction(require)
+
+    if type(getgenv) == "function" then
+        local ok, globalEnvironment = pcall(getgenv)
+
+        if ok and type(globalEnvironment) == "table" then
+            addRequireFunction(rawget(globalEnvironment, "require"))
+        end
+    end
+
+    moduleName = moduleName or (typeof(module) == "Instance" and module:GetFullName()) or tostring(module)
+
+    if typeof(module) ~= "Instance" or not module:IsA("ModuleScript") then
+        error(("[BSS Webhook Tracker] %s is not a ModuleScript."):format(moduleName), 2)
+    end
+
+    local lastError = "Unknown require error"
+
+    for attempt = 1, maxAttempts do
+        if not module:IsDescendantOf(game) then
+            lastError = "ModuleScript is not currently parented under the game."
+        else
+            for _, requireFunction in ipairs(requireFunctions) do
+                local ok, result = pcall(function()
+                    return runAtGameIdentity(requireFunction, module)
+                end)
+
+                if ok then
+                    return result
+                end
+
+                lastError = result
+            end
+        end
+
+        if attempt < maxAttempts then
+            warn(("[BSS Webhook Tracker] Failed to require %s (%d/%d): %s. Retrying..."):format(
+                moduleName,
+                attempt,
+                maxAttempts,
+                tostring(lastError)
+            ))
+            task.wait(retryDelay)
+        end
+    end
+
+    error(("[BSS Webhook Tracker] Could not require %s after %d attempts: %s"):format(
+        moduleName,
+        maxAttempts,
+        tostring(lastError)
+    ), 2)
+end
+
+local ClientStatCache = safeRequire(ReplicatedStorage:WaitForChild("ClientStatCache"), "ClientStatCache")
+local EggTypes = safeRequire(ReplicatedStorage:WaitForChild("EggTypes"), "EggTypes")
+local Badges = safeRequire(ReplicatedStorage:WaitForChild("Badges"), "Badges")
+local BeeTypes = safeRequire(ReplicatedStorage:WaitForChild("BeeTypes"), "BeeTypes")
+local HoneycombFileTools = safeRequire(ReplicatedStorage:WaitForChild("HoneycombFileTools"), "HoneycombFileTools")
+local StatTools = safeRequire(ReplicatedStorage:WaitForChild("StatTools"), "StatTools")
+local CompleteQuestsTask = safeRequire(ReplicatedStorage:WaitForChild("Quests"):WaitForChild("TaskTypes"):WaitForChild("Complete Quests"), "Complete Quests")
+
+local Request =
+    (syn and syn.request)
+    or http_request
+    or request
+    or (http and http.request)
+
+assert(type(Request) == "function", "Your executor does not provide an HTTP request function.")
+assert(type(Config.WebhookURL) == "string" and Config.WebhookURL ~= "", "Config.WebhookURL is empty.")
+assert(not Config.WebhookURL:find("PutHere", 1, true), "Set Config.WebhookURL before running the script.")
+
+-- Functions
+local function getItemData(stats)
+    local items = {}
+    local eggs = stats.Eggs or {}
+
+    for _, itemType in ipairs(EggTypes:GetOrderedNames()) do
+        local itemInfo = EggTypes:GetType(itemType)
+        local amount = eggs[itemType]
+
+        if itemInfo and not itemInfo.Hidden and not itemInfo.HideRow and type(amount) == "number" and amount > 0 then
+            local displayName = itemInfo.DisplayName or itemType
+            items[displayName] = amount
+        end
+    end
+
+    return items
+end
+
+local function getBadgeData(stats)
+    local badgeLevels = {}
+
+    for _, badgeSet in ipairs(Badges.GetOrderedSets()) do
+        local badgeName = badgeSet.Name
+        local ok, badgeData = pcall(Badges.GetSetData, badgeName, stats)
+
+        if ok and badgeData and badgeData.TierName then
+            -- Your requested "Honey Badge - Grandmaster".
+            table.insert(badgeLevels, badgeData.TierName)
+        else
+            local storedTier = ((stats.Badges or {})[badgeName] or 0)
+            local tierNames = Badges.GetTierNames()
+            local displayTier = tierNames[math.clamp(storedTier + 1, 1, #tierNames)] or "Unknown"
+            table.insert(badgeLevels, badgeName .. " Badge - " .. displayTier)
+        end
+    end
+
+    return badgeLevels
+end
+
+local function getCompletedQuestCount(stats)
+    local ok, result = pcall(CompleteQuestsTask.GetStat, {}, stats)
+
+    if ok and type(result) == "number" then
+        return result
+    end
+
+    local count = 0
+    local quests = stats.Quests or {}
+
+    if type(quests.Completed) == "table" then
+        count = #quests.Completed
+    end
+
+    local totals = stats.Totals or {}
+
+    if type(totals.QuestPoolCounts) == "table" then
+        for _, poolCount in pairs(totals.QuestPoolCounts) do
+            if type(poolCount) == "number" then
+                count += poolCount
+            end
+        end
+    end
+
+    return count
+end
+
+local function getBeeData(stats)
+    local beeTypeCounts = {}
+    local honeycomb = stats.Honeycomb or {}
+
+    HoneycombFileTools.ForEachBee(honeycomb, function(beeFile)
+        local beeType = beeFile and beeFile.Type
+
+        if type(beeType) == "string" and BeeTypes:GetType(beeType) then
+            local displayName = beeType .. " Bees"
+            beeTypeCounts[displayName] = (beeTypeCounts[displayName] or 0) + 1
+        end
+    end)
+
+    return {
+        total = HoneycombFileTools.Count(honeycomb),
+        discovered = StatTools.DiscoveredBeeCount(stats),
+        types = beeTypeCounts,
+    }
+end
+
+local function collectPlayerData()
+    -- Keep the whole game-module call chain at LocalScript identity. Some of the
+    -- game's modules lazily require other modules only when these methods run.
+    return runAtGameIdentity(function()
+        pcall(function()
+            ClientStatCache:UpdateIfOlderThan(30)
+        end)
+
+        local stats = ClientStatCache:WaitUntilLoad()
+
+        if type(stats) ~= "table" then
+            error("[BSS Webhook Tracker] ClientStatCache returned invalid player stats.", 0)
+        end
+
+        local beeData = getBeeData(stats)
+
+        return {
+            username = LocalPlayer.Name,
+            honey = stats.Honey or 0,
+            totalHoney = ((stats.Totals or {}).Honey or 0),
+            questsCompleted = getCompletedQuestCount(stats),
+            beeCount = beeData.total,
+            beesDiscovered = beeData.discovered,
+            beeTypes = beeData.types,
+            eggsAndItems = getItemData(stats),
+            badges = getBadgeData(stats),
+            capturedAtUtc = os.date("!%Y-%m-%dT%H:%M:%SZ"),
+        }
+    end)
+end
+
+local function makeJsonEmbeds(jsonText)
+    local embeds = {}
+    local maxDescriptionLength = 3900
+    local index = 1
+
+    while index <= #jsonText do
+        local chunk = jsonText:sub(index, index + maxDescriptionLength - 1)
+        table.insert(embeds, {
+            description = chunk,
+        })
+        index += maxDescriptionLength
+    end
+
+    return embeds
+end
+
+local function sendAsAttachment(jsonText)
+    local boundary = "----BSSWebhookTracker" .. tostring(math.floor(os.clock() * 1000000))
+    local payloadJson = HttpService:JSONEncode({
+        content = "BSS player data is attached as JSON because it exceeded Discord's message text limit.",
+        allowed_mentions = { parse = {} },
+    })
+
+    local body = table.concat({
+        "--" .. boundary,
+        'Content-Disposition: form-data; name="payload_json"',
+        "Content-Type: application/json",
+        "",
+        payloadJson,
+        "--" .. boundary,
+        'Content-Disposition: form-data; name="files[0]"; filename="bss-player-data.json"',
+        "Content-Type: application/json",
+        "",
+        jsonText,
+        "--" .. boundary .. "--",
+        "",
+    }, "\r\n")
+
+    return Request({
+        Url = Config.WebhookURL,
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "multipart/form-data; boundary=" .. boundary,
+        },
+        Body = body,
+    })
+end
+
+local function sendWebhook()
+    local data = collectPlayerData()
+    local jsonText = HttpService:JSONEncode(data)
+    local response
+
+    -- discords message limits.
+    if #jsonText <= 1900 then
+        response = Request({
+            Url = Config.WebhookURL,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json",
+            },
+            Body = HttpService:JSONEncode({
+                content = jsonText,
+                allowed_mentions = { parse = {} },
+            }),
+        })
+    elseif #jsonText <= 5800 then
+        response = Request({
+            Url = Config.WebhookURL,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json",
+            },
+            Body = HttpService:JSONEncode({
+                content = "BSS player data (JSON continues through the embed descriptions in order):",
+                embeds = makeJsonEmbeds(jsonText),
+                allowed_mentions = { parse = {} },
+            }),
+        })
+    else
+        response = sendAsAttachment(jsonText)
+    end
+
+    if response == nil then
+        error("[BSS Webhook Tracker] Webhook request returned no response.", 0)
+    end
+
+    local statusCode = tonumber(response.StatusCode or response.Status)
+
+    if statusCode and (statusCode < 200 or statusCode >= 300) then
+        error("[BSS Webhook Tracker] Webhook returned HTTP " .. tostring(statusCode), 0)
+    end
+end
+
+local function sendWebhookWithRetry(sendName)
+    local maxAttempts = 8
+    local retryDelay = 2
+    local lastError = "Unknown send error"
+
+    for attempt = 1, maxAttempts do
+        local ok, err = pcall(sendWebhook)
+
+        if ok then
+            return true
+        end
+
+        lastError = err
+
+        if attempt < maxAttempts then
+            warn(("[BSS Webhook Tracker] %s failed (%d/%d): %s. Retrying..."):format(
+                sendName,
+                attempt,
+                maxAttempts,
+                tostring(lastError)
+            ))
+            task.wait(retryDelay)
+        end
+    end
+
+    warn(("[BSS Webhook Tracker] %s failed after %d attempts: %s"):format(
+        sendName,
+        maxAttempts,
+        tostring(lastError)
+    ))
+
+    return false
+end
+
+-- Stops re-execution.
+local environment = getgenv and getgenv() or _G
+
+if environment.__BSSWebhookTracker then
+    environment.__BSSWebhookTracker.Running = false
+end
+
+local state = {
+    Running = true,
+}
+environment.__BSSWebhookTracker = state
+
+if Config.SendImmediately then
+    sendWebhookWithRetry("Initial send")
+end
+
+local intervalSeconds = math.max(1, tonumber(Config.IntervalMinutes) or 5) * 60
+
+while state.Running do
+    task.wait(intervalSeconds)
+
+    if not state.Running then
+        break
+    end
+
+    sendWebhookWithRetry("Scheduled send")
+end
