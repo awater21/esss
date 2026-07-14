@@ -291,8 +291,7 @@ local function RunPizza()
     RemoveAether()
 
     TDS:Loadout("Assassin", "None", "None", "None", "None")
-    TDS:Mode("Fallen")
-    TDS:GameInfo("Simplicity", {})
+    TDS:Mode("PizzaParty")
 
     loadstring(game:HttpGet("https://pastebin.com/raw/G86N3upG"))()
 end
