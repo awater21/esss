@@ -231,6 +231,7 @@ local running = false
 local runningEasy = false
 local runningPizza = false
 local runningHardcore = false
+local runningFrost = false
 
 local function BuyTower(towerName)
     print("buying " .. towerName)
@@ -262,7 +263,7 @@ local function RunEasy()
     getgenv().TimeScaleValue = 2
 
     local TDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/guitheme/refs/heads/main/Aetherv2"))()
-
+    task.wait(0.1) -- Added wait
     RemoveAether()
 
 
@@ -286,7 +287,7 @@ local function RunPizza()
     getgenv().AutoRejoin = false
 
     local TDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/guitheme/refs/heads/main/Aetherv2"))()
-    
+    task.wait(0.1) -- Added wait
     RemoveAether()
 
     TDS:Loadout("Assassin", "None", "None", "None", "None")
@@ -311,6 +312,7 @@ local function RunHardcore()
     getgenv().TimeScaleValue = 2
 
     local TDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/guitheme/refs/heads/main/Aetherv2"))()
+    task.wait(0.1) -- Added wait
     RemoveAether()
 
     if game.PlaceId == 3260590327 then
@@ -327,6 +329,33 @@ local function RunHardcore()
     loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/progress/refs/heads/main/hardcore"))()
 end
 
+local function RunFrost()
+    if runningFrost then return end
+    runningFrost = true
+
+    statusDisplay.Text = "Status: Grinding Frost"
+
+    print("starting frost strat")
+
+    getgenv().AutoPremium = true
+    getgenv().AutoSkip = true
+    getgenv().AutoRejoin = true
+    getgenv().AutoGatling = true
+    getgenv().TimeScaleEnabled = false
+    getgenv().TimeScaleValue = 2
+
+    local TDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/guitheme/refs/heads/main/Aetherv2"))()
+    task.wait(0.1) -- Added wait
+    RemoveAether()
+
+
+    TDS:Loadout("Gatling Gun", "Hacker", "Trapper", "DJ Booth", "Turret")
+    TDS:Mode("Frost")
+    TDS:GameInfo("Lay By", {})
+
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/awater21/pupey12/refs/heads/main/frost"))()
+end
+
 local function RunAutoProgression()
     if running then return end
     running = true
@@ -336,33 +365,56 @@ local function RunAutoProgression()
 
     local level = GetStat("Level")
     local coins = GetStat("Coins")
+    local gems = GetStat("Gems") -- Added: get gems stat
 
     print("Auto progression started")
     print("Level:", level)
     print("Coins:", coins)
+    print("Gems:", gems)
 
-    if level >= 50 then
+    -- Reset individual strategy flags for the next run
+    runningEasy = false
+    runningPizza = false
+    runningHardcore = false
+    runningFrost = false
+
+    -- Prioritized progression logic
+    if level >= 180 then
+        statusDisplay.Text = "Status: Checking Frost requirements..."
+        if coins >= 43000 then
+            BuyTower("Gatling Gun")
+            task.wait(1)
+            BuyTower("Trapper")
+            task.wait(1)
+            BuyTower("DJ Booth")
+            task.wait(1)
+        end
+        if gems >= 6000 then
+            BuyTower("Hacker")
+            task.wait(1)
+        end
+        RunFrost()
+    elseif level >= 50 then
+        statusDisplay.Text = "Status: Checking Hardcore requirements..."
         if coins >= 2250 then
             BuyTower("Pyromancer")
             task.wait(1)
             BuyTower("Hunter")
             task.wait(1)
         end
-
         RunHardcore()
-
     elseif level <= 31 then
+        statusDisplay.Text = "Status: Grinding Easy..."
         RunEasy()
-
-    else
+    else -- Between level 32 and 49 (inclusive)
+        statusDisplay.Text = "Status: Checking Pizza requirements..."
         if coins >= 800 then
             BuyTower("Assassin")
             task.wait(1)
         end
-
         RunPizza()
     end
-
+    
     running = false
 end
 
