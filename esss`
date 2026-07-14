@@ -263,7 +263,7 @@ local function RunEasy()
     getgenv().TimeScaleValue = 2
 
     local TDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/guitheme/refs/heads/main/Aetherv2"))()
-    task.wait(0.1) -- Added wait
+    task.wait(1) -- Added wait
     RemoveAether()
 
 
@@ -287,7 +287,7 @@ local function RunPizza()
     getgenv().AutoRejoin = false
 
     local TDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/guitheme/refs/heads/main/Aetherv2"))()
-    task.wait(0.1) -- Added wait
+    task.wait(1) -- Added wait
     RemoveAether()
 
     TDS:Loadout("Assassin", "None", "None", "None", "None")
@@ -311,7 +311,7 @@ local function RunHardcore()
     getgenv().TimeScaleValue = 2
 
     local TDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/guitheme/refs/heads/main/Aetherv2"))()
-    task.wait(0.1) -- Added wait
+    task.wait(1) -- Added wait
     RemoveAether()
 
     if game.PlaceId == 3260590327 then
@@ -344,7 +344,7 @@ local function RunFrost()
     getgenv().TimeScaleValue = 2
 
     local TDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/guitheme/refs/heads/main/Aetherv2"))()
-    task.wait(0.1) -- Added wait
+    task.wait(1) -- Added wait
     RemoveAether()
 
 
@@ -406,10 +406,12 @@ local function RunAutoProgression()
         end
     elseif level >= 50 then
         statusDisplay.Text = "Status: Checking Hardcore requirements..."
-        if coins >= 2250 then
+        if coins >= 4750 then
             BuyTower("Pyromancer")
             task.wait(1)
             BuyTower("Hunter")
+            task.wait(1)
+            BuyTower("Minigunner")
             task.wait(1)
         end
         RunHardcore()
