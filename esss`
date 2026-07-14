@@ -365,7 +365,7 @@ local function RunAutoProgression()
 
     local level = GetStat("Level")
     local coins = GetStat("Coins")
-    local gems = GetStat("Gems") -- Added: get gems stat
+    local gems = GetStat("Gems")
 
     print("Auto progression started")
     print("Level:", level)
@@ -381,19 +381,30 @@ local function RunAutoProgression()
     -- Prioritized progression logic
     if level >= 180 then
         statusDisplay.Text = "Status: Checking Frost requirements..."
-        if coins >= 43000 then
-            BuyTower("Gatling Gun")
-            task.wait(1)
-            BuyTower("Trapper")
-            task.wait(1)
-            BuyTower("DJ Booth")
-            task.wait(1)
+        if coins >= 48000 then -- Check for 48000 coins to run Frost
+            -- Existing logic for buying Frost towers
+            if coins >= 43000 then
+                BuyTower("Gatling Gun")
+                task.wait(1)
+                BuyTower("Trapper")
+                task.wait(1)
+                BuyTower("DJ Booth")
+                task.wait(1)
+            end
+            if gems >= 6000 then
+                BuyTower("Hacker")
+                task.wait(1)
+            end
+            RunFrost()
+        else
+            -- If not enough coins for Frost, run Pizza
+            statusDisplay.Text = "Status: Not enough coins for Frost. Grinding Pizza..."
+            if coins >= 800 then -- Pizza tower cost check
+                BuyTower("Assassin")
+                task.wait(1)
+            end
+            RunPizza()
         end
-        if gems >= 6000 then
-            BuyTower("Hacker")
-            task.wait(1)
-        end
-        RunFrost()
     elseif level >= 50 then
         statusDisplay.Text = "Status: Checking Hardcore requirements..."
         if coins >= 2250 then
