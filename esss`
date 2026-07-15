@@ -293,7 +293,7 @@ local function RunPizza()
     TDS:Loadout("Assassin", "None", "None", "None", "None")
     TDS:Mode("PizzaParty")
 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/progress/refs/heads/main/pizza"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/awater21/ozia/refs/heads/main/ooap"))()
 end
 
 local function RunHardcore()
