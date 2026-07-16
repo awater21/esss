@@ -338,7 +338,7 @@ local function RunFrost()
 
     getgenv().AutoPremium = true
     getgenv().AutoSkip = true
-    getgenv().AutoRejoin = false
+    getgenv().AutoRejoin = true
     getgenv().AutoReady = true
     getgenv().AutoGatling = true
     getgenv().TimeScaleEnabled = false
