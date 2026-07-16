@@ -378,10 +378,9 @@ local function RunAutoProgression()
     runningFrost = false
 
     -- Prioritized progression logic
-    if level >= 180 then
-        statusDisplay.Text = "Status: Checking Frost requirements..."
-        if coins >= 48000 then -- Check for 48000 coins to run Frost
-            -- Existing logic for buying Frost towers
+    if level >= 200 then
+        statusDisplay.Text = "Status: Grinding Frost..."
+        if coins >= 48000 then -- Main check to even consider buying Frost towers and running Frost
             if coins >= 43000 then
                 BuyTower("Gatling Gun")
                 task.wait(1)
@@ -390,20 +389,19 @@ local function RunAutoProgression()
                 BuyTower("DJ Booth")
                 task.wait(1)
             end
-            if gems >= 6000 then
-                BuyTower("Hacker")
-                task.wait(1)
-            end
-            RunFrost()
-        else
-            -- If not enough coins for Frost, run Pizza
-            statusDisplay.Text = "Status: Not enough coins for Frost. Grinding Pizza..."
-            if coins >= 800 then -- Pizza tower cost check
-                BuyTower("Assassin")
-                task.wait(1)
-            end
-            RunPizza()
         end
+        if gems >= 6000 then
+            BuyTower("Hacker")
+            task.wait(1)
+        end
+        RunFrost()
+    elseif level >= 180 then -- This covers levels 180 to 199
+        statusDisplay.Text = "Status: Grinding Pizza (post-180)..."
+        if coins >= 800 then
+            BuyTower("Assassin")
+            task.wait(1)
+        end
+        RunPizza()
     elseif level >= 50 then
         statusDisplay.Text = "Status: Checking Hardcore requirements..."
         if coins >= 4750 then
