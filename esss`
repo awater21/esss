@@ -332,15 +332,16 @@ local function RunFrost()
     if runningFrost then return end
     runningFrost = true
 
-    statusDisplay.Text = "Status: Grinding Frost"
+    statusDisplay.Text = "Status: Grinding Pizza"
 
     print("starting frost strat")
 
     getgenv().AutoPremium = true
-    getgenv().AutoSkip = true
+    getgenv().AutoSkip = false
     getgenv().AutoRejoin = true
-    getgenv().AutoReady = true
+    getgenv().AutoReady = false
     getgenv().AutoGatling = true
+    getgenv().AutoDJ = true
     getgenv().TimeScaleEnabled = false
     getgenv().TimeScaleValue = 2
 
@@ -349,11 +350,10 @@ local function RunFrost()
     RemoveAether()
 
 
-    TDS:Loadout("Gatling Gun", "Hacker", "Trapper", "DJ Booth", "Turret")
-    TDS:Mode("Frost")
-    TDS:GameInfo("Lay By", {})
+    TDS:Loadout("Gatling Gun", "Military Base", "DJ Booth", "Turret", "Ace Pilot")
+    TDS:Mode("PizzaParty")
 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/awater21/pupey12/refs/heads/main/frost"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/awater21/reimagined-rotary-phone/refs/heads/main/rart"))()
 end
 
 local function RunAutoProgression()
@@ -380,20 +380,18 @@ local function RunAutoProgression()
 
     -- Prioritized progression logic
     if level >= 210 then
-        statusDisplay.Text = "Status: Grinding Frost..."
+        statusDisplay.Text = "Status: Grinding Pizza..."
         if coins >= 48000 then -- Main check to even consider buying Frost towers and running Frost
-            if coins >= 43000 then
+            if coins >= 48000 then
                 BuyTower("Gatling Gun")
                 task.wait(1)
-                BuyTower("Trapper")
+                BuyTower("Military Base")
                 task.wait(1)
                 BuyTower("DJ Booth")
                 task.wait(1)
+                BuyTower("Ace Pilot")
+                task.wait(1)
             end
-        end
-        if gems >= 6000 then
-            BuyTower("Hacker")
-            task.wait(1)
         end
         RunFrost()
     elseif level >= 180 then -- This covers levels 180 to 199
