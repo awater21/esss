@@ -261,6 +261,8 @@ local function RunEasy()
     getgenv().AutoRejoin = false
     getgenv().TimeScaleEnabled = false
     getgenv().TimeScaleValue = 2
+    getgenv().SCRIPT_KEY = "c60fee31-dade-4c40-9896-d606f04901b5"
+
 
     local TDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/guitheme/refs/heads/main/Aetherv2"))()
 
@@ -285,6 +287,8 @@ local function RunPizza()
     getgenv().AutoPremium = true
     getgenv().AutoSkip = true
     getgenv().AutoRejoin = false
+    getgenv().SCRIPT_KEY = "c60fee31-dade-4c40-9896-d606f04901b5"
+
 
     local TDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/guitheme/refs/heads/main/Aetherv2"))()
     
@@ -309,6 +313,8 @@ local function RunHardcore()
     getgenv().AutoRejoin = false
     getgenv().TimeScaleEnabled = true
     getgenv().TimeScaleValue = 2
+    getgenv().SCRIPT_KEY = "c60fee31-dade-4c40-9896-d606f04901b5"
+
 
     local TDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/guitheme/refs/heads/main/Aetherv2"))()
     RemoveAether()
@@ -347,6 +353,8 @@ local function RunPizza2()
     getgenv().AutoDJ = true
     getgenv().TimeScaleEnabled = false
     getgenv().TimeScaleValue = 2
+    getgenv().SCRIPT_KEY = "c60fee31-dade-4c40-9896-d606f04901b5"
+
 
     local TDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/guitheme/refs/heads/main/Aetherv2"))()
     RemoveAether()
