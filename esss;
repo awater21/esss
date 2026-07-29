@@ -258,7 +258,7 @@ local function RunEasy()
 
     getgenv().AutoPremium = true
     getgenv().AutoSkip = true
-    getgenv().AutoRejoin = false
+    getgenv().AutoRejoin = true
     getgenv().TimeScaleEnabled = false
     getgenv().TimeScaleValue = 2
     getgenv().SCRIPT_KEY = "c60fee31-dade-4c40-9896-d606f04901b5"
