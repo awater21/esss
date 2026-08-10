@@ -286,6 +286,7 @@ local function RunPizza()
 
     getgenv().AutoPremium = true
     getgenv().AutoSkip = true
+    getgenv().AutoRestart = true
     getgenv().AutoRejoin = false
     getgenv().SCRIPT_KEY = "c60fee31-dade-4c40-9896-d606f04901b5"
 
