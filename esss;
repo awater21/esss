@@ -259,6 +259,7 @@ local function RunEasy()
     getgenv().AutoPremium = true
     getgenv().AutoSkip = true
     getgenv().AutoRejoin = true
+    getgenv().AutoRestart = true
     getgenv().TimeScaleEnabled = false
     getgenv().TimeScaleValue = 2
     getgenv().SCRIPT_KEY = "c60fee31-dade-4c40-9896-d606f04901b5"
@@ -312,6 +313,7 @@ local function RunHardcore()
     getgenv().AutoPremium = true
     getgenv().AutoSkip = true
     getgenv().AutoRejoin = false
+    getgenv().AutoRestart = true
     getgenv().TimeScaleEnabled = true
     getgenv().TimeScaleValue = 2
     getgenv().SCRIPT_KEY = "c60fee31-dade-4c40-9896-d606f04901b5"
