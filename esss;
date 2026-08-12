@@ -288,19 +288,19 @@ local function RunPizza()
     getgenv().AutoPremium = true
     getgenv().AutoSkip = true
     getgenv().AutoRejoin = true
+    getgenv().AutoRestart = true
     getgenv().TimeScaleEnabled = false
     getgenv().TimeScaleValue = 2
     getgenv().SCRIPT_KEY = "c60fee31-dade-4c40-9896-d606f04901b5"
 
     local TDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/guitheme/refs/heads/main/Aetherv2"))()
-    
+    task.wait(1) -- Added wait
     RemoveAether()
 
-    TDS:Loadout("Scout", "None", "None", "None", "None")
-    TDS:Mode("Easy")
-    TDS:GameInfo("Simplicity", {})
+    TDS:Loadout("Assassin", "None", "None", "None", "None")
+    TDS:Mode("PizzaParty")
 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/progress/refs/heads/main/easy"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/progress/refs/heads/main/pizza"))()
 end
 
 local function RunHardcore()
