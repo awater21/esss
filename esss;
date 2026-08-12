@@ -288,7 +288,7 @@ local function RunPizza()
     getgenv().AutoPremium = true
     getgenv().AutoSkip = true
     getgenv().AutoRestart = true
-    getgenv().AutoRejoin = false
+    getgenv().AutoRejoin = true
     getgenv().SCRIPT_KEY = "c60fee31-dade-4c40-9896-d606f04901b5"
 
 
@@ -296,10 +296,11 @@ local function RunPizza()
     
     RemoveAether()
 
-    TDS:Loadout("Assassin", "None", "None", "None", "None")
-    TDS:Mode("PizzaParty")
+    TDS:Loadout("Scout", "None", "None", "None", "None")
+    TDS:Mode("Easy")
+    TDS:GameInfo("Simplicity", {})
 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/awater21/piza/refs/heads/main/piza100"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/progress/refs/heads/main/easy"))()
 end
 
 local function RunHardcore()
