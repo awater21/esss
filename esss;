@@ -287,10 +287,11 @@ local function RunPizza()
 
     getgenv().AutoPremium = true
     getgenv().AutoSkip = true
-    getgenv().AutoRestart = true
     getgenv().AutoRejoin = true
+    getgenv().AutoRestart = true
+    getgenv().TimeScaleEnabled = false
+    getgenv().TimeScaleValue = 2
     getgenv().SCRIPT_KEY = "c60fee31-dade-4c40-9896-d606f04901b5"
-
 
     local TDS = loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/guitheme/refs/heads/main/Aetherv2"))()
     
