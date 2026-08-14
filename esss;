@@ -300,7 +300,7 @@ local function RunPizza()
     TDS:Loadout("Assassin", "None", "None", "None", "None")
     TDS:Mode("PizzaParty")
 
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/awater21/piza/refs/heads/main/piza100"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Ceepizz/progress/refs/heads/main/pizza"))()
 end
 
 local function RunHardcore()
@@ -410,8 +410,17 @@ local function RunAutoProgression()
 
         RunHardcore()
 
-    elseif level <= 119 then
+    elseif level <= 31 then
         RunEasy()
+
+    else -- Between level 32 and 49 (inclusive)
+        if coins >= 800 then
+            BuyTower("Assassin")
+            task.wait(1)
+        end
+
+        RunPizza()
+    end
 
     end
 
