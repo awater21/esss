@@ -413,15 +413,13 @@ local function RunAutoProgression()
     elseif level <= 31 then
         RunEasy()
 
-    else -- Between level 32 and 49 (inclusive)
+    else
         if coins >= 800 then
             BuyTower("Assassin")
             task.wait(1)
         end
 
         RunPizza()
-    end
-
     end
 
     running = false
